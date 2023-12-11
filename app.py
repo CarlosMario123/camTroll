@@ -32,4 +32,4 @@ def verFoto():
     return render_template("captura.html",palabra = palabra)
         
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

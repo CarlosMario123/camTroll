@@ -59,6 +59,7 @@
       .then(response => {
         // Manejar la respuesta del servidor si es necesario
         console.log('Foto enviada al servidor');
+        window.location.href = "/view"
       })
       .catch(error => console.error('Error al enviar foto:', error));
     }
