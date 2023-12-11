@@ -1,15 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Captura de imagen</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>App de Cámara</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #video {
+      width: 100%;
+      max-width: 400px;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body class="bg-[#f4ff91] h-screen py-2 flex justify-center items-center flex-col">
-    <h1 class ="text-4xl font-black w-full text-center ">Troll Cam</h1>
-    <div class="w-full flex items-center justify-center flex-col">
-        <img src="{{ url_for('static', filename='cam.png') }}" alt="Mi imagen" class="w-72 h-72">
-        <a href="/capturar" class="bg-sky-700 text-white w-72 text-center py-1 text-2xl rounded-md">Capturar Imagen</a>
-    </div>
-   
+  <h1 class="text-3xl font-black font-mono mb-3">Sonrie XD</h1>
+  <video id="video" autoplay></video>
+  <button id="capture-btn" class="bg-sky-700 text-white w-72 py-1 mt-6">Tomar foto</button>
+  <canvas style="display: none;" id="canvas"></canvas>
+ 
+  <script>
+    const video = document.getElementById('video');
+    const captureButton = document.getElementById('capture-btn');
+    const canvas = document.getElementById('canvas');
+    const constraints = {
+      video: true
+    };
+
+    // Acceder a la cámara
+    async function initCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = stream;
+      } catch (err) {
+        console.error('Error al acceder a la cámara:', err);
+      }
+    }
+
+    // Tomar foto
+    function takeSnapshot() {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convertir imagen a base64 y enviar al servidor
+      const imgData = canvas.toDataURL('image/png');
+      fetch('/guardar_foto', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image: imgData })
+      })
+      .then(response => {
+        // Manejar la respuesta del servidor si es necesario
+        console.log('Foto enviada al servidor');
+      })
+      .catch(error => console.error('Error al enviar foto:', error));
+    }
+
+    // Iniciar la cámara al cargar la página
+    window.onload = () => {
+      initCamera();
+    };
+
+    // Capturar foto al hacer clic en el botón
+    captureButton.addEventListener('click', () => {
+      takeSnapshot();
+    });
+  </script>
 </body>
 </html>
+
